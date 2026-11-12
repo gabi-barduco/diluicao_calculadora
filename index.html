@@ -46,7 +46,7 @@
         <span id="temaIcone" aria-hidden="true"></span>
         <span id="temaTexto">Modo escuro</span>
       </button>
-      <a href="#" data-ms-action="logout" data-ms-content="members" class="tema btn-sair">
+      <a href="#" data-ms-action="logout" data-ms-redirect="/diluicao_calculadora/" data-ms-content="members" class="tema btn-sair">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span>Sair</span>
       </a>
@@ -70,7 +70,7 @@
 
       <!-- Formulário de Login -->
       <div id="painelLogin" role="tabpanel" aria-labelledby="tabLogin">
-        <form data-ms-form="login" class="auth-form">
+        <form data-ms-form="login" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
           <div class="auth-campo">
             <label for="loginEmail">E-mail</label>
             <input type="email" id="loginEmail" name="email" data-ms-member="email" placeholder="seu@email.com" autocomplete="email" required>
@@ -88,7 +88,7 @@
 
       <!-- Formulário de Cadastro -->
       <div id="painelSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
-        <form data-ms-form="signup" class="auth-form">
+        <form data-ms-form="signup" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
           <div class="auth-campo">
             <label for="signupEmail">E-mail</label>
             <input type="email" id="signupEmail" name="email" data-ms-member="email" placeholder="seu@email.com" autocomplete="email" required>
