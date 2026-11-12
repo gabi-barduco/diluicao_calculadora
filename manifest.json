@@ -1,7 +1,7 @@
 {
-  "name": "Calculadora de Diluição de Procaína",
-  "short_name": "Procaína",
-  "description": "Calculadora prática de diluição de procaína com guia visual e histórico offline.",
+  "name": "Calculadora de Diluição",
+  "short_name": "Diluição",
+  "description": "Calculadora prática de diluição de soluções com guia visual e histórico offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
