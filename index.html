@@ -8,8 +8,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Calculadora de Diluição de Procaína</title>
-<!-- Memberstack -->
-<script data-memberstack-app="app_cmwdoomzh00710tvf12p8cxo8" src="https://static.memberstack.com/scripts/v2/memberstack.js" type="text/javascript"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -46,58 +44,75 @@
         <span id="temaIcone" aria-hidden="true"></span>
         <span id="temaTexto">Modo escuro</span>
       </button>
-      <a href="#" id="btnSair" data-ms-content="members" class="tema btn-sair">
+      <button type="button" id="btnSair" class="tema btn-sair" hidden>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span>Sair</span>
-      </a>
+      </button>
     </div>
   </div>
 </header>
 
 <main class="pagina">
-  <!-- 1. Visitante não autenticado: Login ou Cadastro com Checkout -->
-  <section data-ms-content="!members" class="auth-wrap">
+  <!-- Tela de carregamento inicial da sessão -->
+  <section id="telaCarregando" class="auth-wrap" style="text-align: center; padding: 48px 16px;">
+    <p class="dica">Verificando acesso...</p>
+  </section>
+
+  <!-- Tela de Login / Aquisição / Cadastro -->
+  <section id="telaAuth" class="auth-wrap" hidden>
     <div class="titulo auth-titulo">
       <h1>Calculadora de diluição de procaína</h1>
-      <p>Entre na sua conta ou adquira o acesso vitalício para usar a calculadora e salvar seus cálculos.</p>
+      <p>Entre na sua conta ou adquira o acesso vitalício para utilizar a calculadora e salvar seus cálculos.</p>
     </div>
 
     <div class="painel auth-card">
       <div class="auth-abas" role="tablist" aria-label="Acesso à conta">
         <button type="button" role="tab" id="tabLogin" class="auth-aba" aria-selected="true" aria-controls="painelLogin">Entrar</button>
-        <button type="button" role="tab" id="tabSignup" class="auth-aba" aria-selected="false" aria-controls="painelSignup" tabindex="-1">Criar conta</button>
+        <button type="button" role="tab" id="tabSignup" class="auth-aba" aria-selected="false" aria-controls="painelSignup" tabindex="-1">Adquirir / Criar conta</button>
       </div>
 
       <!-- Formulário de Login -->
       <div id="painelLogin" role="tabpanel" aria-labelledby="tabLogin">
-        <form data-ms-form="login" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
+        <form id="formLogin" class="auth-form">
           <div class="auth-campo">
             <label for="loginEmail">E-mail</label>
-            <input type="email" id="loginEmail" name="email" data-ms-member="email" placeholder="seu@email.com" autocomplete="email" required>
+            <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email" required>
           </div>
           <div class="auth-campo">
             <div class="label-linha">
               <label for="loginPassword">Senha</label>
-              <a href="#" data-ms-modal="forgot-password" class="link-senha">Esqueci a senha</a>
+              <a href="#" id="btnEsqueciSenha" class="link-senha">Esqueci a senha</a>
             </div>
-            <input type="password" id="loginPassword" name="password" data-ms-member="password" placeholder="Sua senha" autocomplete="current-password" required>
+            <input type="password" id="loginPassword" placeholder="Sua senha" autocomplete="current-password" required>
           </div>
-          <button type="submit" class="primario auth-submit">Entrar</button>
+          <button type="submit" id="btnEntrar" class="primario auth-submit">Entrar</button>
         </form>
       </div>
 
-      <!-- Formulário de Cadastro (já abre o checkout do Plano Vitalício) -->
+      <!-- Painel de Aquisição e Cadastro pós-pagamento -->
       <div id="painelSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
-        <form data-ms-form="signup" data-ms-price:add="prc_plano-vital-cio-calculadora-dilui-o-5uq20qoz" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
+        <!-- Exibido antes do pagamento -->
+        <div id="boxComprar" style="text-align: center; padding: 8px 0;">
+          <h2 style="margin: 0 0 8px; font-size: 1.15rem;">Plano Vitalício Calculadora Diluição</h2>
+          <p class="dica" style="margin: 0 0 18px;">Pagamento único com acesso ilimitado, guia visual na seringa e histórico offline.</p>
+          <a href="https://buy.stripe.com/00wdR8cb67Em60J7D80x200" class="primario auth-submit" style="display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">
+            Adquirir acesso vitalício
+          </a>
+          <p class="dica" style="margin-top: 14px; font-size: 0.85rem;">Após concluir o pagamento, você voltará automaticamente para cadastrar seu e-mail e senha.</p>
+        </div>
+
+        <!-- Exibido automaticamente após o redirecionamento pós-pagamento (?acesso=liberado) -->
+        <form id="formSignup" class="auth-form" hidden>
+          <p class="dica" style="margin-bottom: 12px; color: var(--teal); font-weight: 500;">Pagamento identificado! Crie seu e-mail e senha de acesso abaixo:</p>
           <div class="auth-campo">
             <label for="signupEmail">E-mail</label>
-            <input type="email" id="signupEmail" name="email" data-ms-member="email" placeholder="seu@email.com" autocomplete="email" required>
+            <input type="email" id="signupEmail" placeholder="seu@email.com" autocomplete="email" required>
           </div>
           <div class="auth-campo">
             <label for="signupPassword">Senha</label>
-            <input type="password" id="signupPassword" name="password" data-ms-member="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+            <input type="password" id="signupPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6" required>
           </div>
-          <button type="submit" class="primario auth-submit">Continuar para pagamento</button>
+          <button type="submit" id="btnCadastrar" class="primario auth-submit">Criar minha conta e acessar</button>
         </form>
       </div>
 
@@ -105,27 +120,8 @@
     </div>
   </section>
 
-  <!-- 2. Usuário logado, mas sem plano pago ativo (exibe botão de checkout) -->
-  <!-- Se quiser restringir a um Plan ID específico, troque "!paid-plans" por "!pln_SEU_ID" -->
-  <section data-ms-content="members" class="auth-wrap" id="secaoCheckout">
-    <div data-ms-content="!paid-plans">
-      <div class="titulo auth-titulo">
-        <h1>Finalize seu acesso</h1>
-        <p>Sua conta já está criada. Conclua a aquisição do Plano Vitalício para liberar a calculadora.</p>
-      </div>
-      <div class="painel auth-card" style="text-align: center;">
-        <h2 style="margin: 0 0 8px;">Plano Vitalício Calculadora Diluição</h2>
-        <p class="dica" style="margin: 0 0 20px;">Pagamento único com acesso ilimitado e histórico salvo no dispositivo.</p>
-        <button type="button" data-ms-price:add="prc_plano-vital-cio-calculadora-dilui-o-5uq20qoz" class="primario auth-submit">
-          Adquirir acesso vitalício
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3. Conteúdo exclusivo para membros com plano pago ativo -->
-  <!-- Se quiser restringir a um Plan ID específico, troque "paid-plans" por "pln_SEU_ID" -->
-  <div data-ms-content="paid-plans">
+  <!-- Conteúdo exclusivo para usuários autenticados -->
+  <div id="telaApp" hidden>
     <div class="titulo">
       <h1>Calculadora de diluição de procaína</h1>
       <p>Informe as concentrações e o volume para saber quanto de procaína e de soro usar no preparo. O resultado é atualizado em tempo real.</p>
@@ -239,8 +235,34 @@
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDmy99-Oc4TE-eK2sdZjxrt3CKO3ttz9v0",
+  authDomain: "calculadora-diluicao.firebaseapp.com",
+  projectId: "calculadora-diluicao",
+  storageBucket: "calculadora-diluicao.firebasestorage.app",
+  messagingSenderId: "891189555411",
+  appId: "1:891189555411:web:99ee4fc285cdab110fe426",
+  measurementId: "G-84YS1CL57E"
+};
+
+const app = initializeApp(firebaseConfig);
+try { getAnalytics(app); } catch (e) {}
+const auth = getAuth(app);
+
 const CHAVE = "historicoDiluições";
+const CHAVE_CADASTRO_LIBERADO = "procainaCadastroLiberado";
 const CAMPOS = ["concInicial", "concFinal", "volFinal", "volSoro"];
 const $ = id => document.getElementById(id);
 const n2 = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -254,7 +276,54 @@ let confirmaApagar = false;
 let timerApagar;
 let eventoInstalacao = null;
 
-/* ---------- Abas de Login / Cadastro, Logout e Diagnóstico Memberstack ---------- */
+/* ---------- Controle de Liberação Pós-Pagamento ---------- */
+function verificarLiberacaoCadastro() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("acesso") === "liberado") {
+    try { localStorage.setItem(CHAVE_CADASTRO_LIBERADO, "1"); } catch (e) {}
+    window.history.replaceState({}, document.title, window.location.pathname);
+    return true;
+  }
+  try {
+    return localStorage.getItem(CHAVE_CADASTRO_LIBERADO) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+const cadastroLiberado = verificarLiberacaoCadastro();
+if (cadastroLiberado) {
+  $("boxComprar").hidden = true;
+  $("formSignup").hidden = false;
+}
+
+/* ---------- Autenticação Firebase ---------- */
+function mostrarErroAuth(msg, sucesso = false) {
+  const el = $("authAviso");
+  el.textContent = msg;
+  el.style.color = sucesso ? "var(--teal)" : "";
+  el.hidden = false;
+}
+
+function traduzirErroFirebase(code) {
+  switch (code) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "E-mail ou senha incorretos.";
+    case "auth/email-already-in-use":
+      return "Este e-mail já está cadastrado. Use a aba Entrar.";
+    case "auth/weak-password":
+      return "A senha deve ter pelo menos 6 caracteres.";
+    case "auth/invalid-email":
+      return "Digite um endereço de e-mail válido.";
+    case "auth/too-many-requests":
+      return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+    default:
+      return "Não foi possível concluir a operação. Verifique sua conexão e tente novamente.";
+  }
+}
+
 function alternarAuth(tipo) {
   const isLogin = tipo === "login";
   $("tabLogin").setAttribute("aria-selected", isLogin);
@@ -266,29 +335,91 @@ function alternarAuth(tipo) {
   $("painelSignup").hidden = isLogin;
   $("authAviso").hidden = true;
 
-  $(isLogin ? "loginEmail" : "signupEmail").focus();
+  if (isLogin) {
+    $("loginEmail").focus();
+  } else if (cadastroLiberado) {
+    $("signupEmail").focus();
+  }
 }
+
 $("tabLogin").addEventListener("click", () => alternarAuth("login"));
 $("tabSignup").addEventListener("click", () => alternarAuth("signup"));
 
-$("btnSair").addEventListener("click", async e => {
-  e.preventDefault();
-  if (window.$memberstackDom) {
-    try {
-      await window.$memberstackDom.logout();
-    } catch (err) {}
+if (cadastroLiberado) {
+  alternarAuth("signup");
+}
+
+onAuthStateChanged(auth, user => {
+  $("telaCarregando").hidden = true;
+  if (user) {
+    $("telaAuth").hidden = true;
+    $("telaApp").hidden = false;
+    $("btnSair").hidden = false;
+  } else {
+    $("telaApp").hidden = true;
+    $("btnSair").hidden = true;
+    $("telaAuth").hidden = false;
   }
-  window.location.replace("https://gabi-barduco.github.io/diluicao_calculadora/");
 });
 
-document.querySelectorAll(".auth-form").forEach(f => {
-  f.addEventListener("submit", e => {
-    if (!window.$memberstackDom) {
-      e.preventDefault();
-      $("authAviso").textContent = "O sistema de login não carregou. Desative bloqueadores de anúncios ou verifique se o domínio gabi-barduco.github.io está autorizado no painel do Memberstack.";
-      $("authAviso").hidden = false;
-    }
-  });
+$("formLogin").addEventListener("submit", async e => {
+  e.preventDefault();
+  $("authAviso").hidden = true;
+  const btn = $("btnEntrar");
+  btn.disabled = true;
+  btn.textContent = "Entrando...";
+  try {
+    await signInWithEmailAndPassword(auth, $("loginEmail").value.trim(), $("loginPassword").value);
+    $("formLogin").reset();
+  } catch (err) {
+    mostrarErroAuth(traduzirErroFirebase(err.code));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
+});
+
+$("formSignup").addEventListener("submit", async e => {
+  e.preventDefault();
+  $("authAviso").hidden = true;
+  const btn = $("btnCadastrar");
+  btn.disabled = true;
+  btn.textContent = "Criando conta...";
+  try {
+    await createUserWithEmailAndPassword(auth, $("signupEmail").value.trim(), $("signupPassword").value);
+    try { localStorage.removeItem(CHAVE_CADASTRO_LIBERADO); } catch (err) {}
+    $("formSignup").reset();
+  } catch (err) {
+    mostrarErroAuth(traduzirErroFirebase(err.code));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Criar minha conta e acessar";
+  }
+});
+
+$("btnEsqueciSenha").addEventListener("click", async e => {
+  e.preventDefault();
+  const email = $("loginEmail").value.trim();
+  if (!email) {
+    mostrarErroAuth("Digite seu e-mail no campo acima e clique novamente em Esqueci a senha.");
+    $("loginEmail").focus();
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    mostrarErroAuth("Enviamos um link de redefinição de senha para " + email + ". Verifique também a caixa de spam.", true);
+  } catch (err) {
+    mostrarErroAuth(traduzirErroFirebase(err.code));
+  }
+});
+
+$("btnSair").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    aviso("Você saiu da sua conta.");
+  } catch (err) {
+    aviso("Erro ao sair.");
+  }
 });
 
 /* ---------- PWA Service Worker e Instalação ---------- */
