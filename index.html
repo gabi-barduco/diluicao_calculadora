@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0e5e5c">
-<meta name="description" content="Calculadora prática de diluição de procaína com guia visual e histórico offline.">
+<meta name="description" content="Calculadora prática de diluição de soluções com guia visual e histórico offline.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Calculadora de Diluição de Procaína</title>
+<meta name="apple-mobile-web-app-title" content="Diluição">
+<title>Calculadora de Diluição</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -33,7 +34,7 @@
       <svg class="marca-icone" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/>
       </svg>
-      <span class="marca">Diluição de procaína</span>
+      <span class="marca">Calculadora de diluição</span>
     </div>
     <div class="topo-acoes">
       <button type="button" id="instalarApp" class="tema" hidden>
@@ -61,7 +62,7 @@
   <!-- Tela de Login / Aquisição / Cadastro -->
   <section id="telaAuth" class="auth-wrap" hidden>
     <div class="titulo auth-titulo">
-      <h1>Calculadora de diluição de procaína</h1>
+      <h1>Calculadora de diluição</h1>
       <p>Entre na sua conta ou adquira o acesso vitalício para utilizar a calculadora e salvar seus cálculos.</p>
     </div>
 
@@ -93,7 +94,7 @@
       <div id="painelSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
         <!-- Exibido antes do pagamento -->
         <div id="boxComprar" style="text-align: center; padding: 8px 0;">
-          <h2 style="margin: 0 0 8px; font-size: 1.15rem;">Plano Vitalício Calculadora Diluição</h2>
+          <h2 style="margin: 0 0 8px; font-size: 1.15rem;">Plano Vitalício — Calculadora de Diluição</h2>
           <p class="dica" style="margin: 0 0 18px;">Pagamento único com acesso ilimitado, guia visual na seringa e histórico offline.</p>
           <a href="https://buy.stripe.com/00wdR8cb67Em60J7D80x200" class="primario auth-submit" style="display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">
             Adquirir acesso vitalício
@@ -123,8 +124,8 @@
   <!-- Conteúdo exclusivo para usuários autenticados -->
   <div id="telaApp" hidden>
     <div class="titulo">
-      <h1>Calculadora de diluição de procaína</h1>
-      <p>Informe as concentrações e o volume para saber quanto de procaína e de soro usar no preparo. O resultado é atualizado em tempo real.</p>
+      <h1>Calculadora de diluição</h1>
+      <p>Informe as concentrações e o volume para saber quanto da solução inicial e de diluente (soro) usar no preparo. O resultado é atualizado em tempo real.</p>
     </div>
 
     <div class="grade">
@@ -152,7 +153,7 @@
 
         <fieldset class="fieldset-volume">
           <legend>Volume</legend>
-          <p class="dica">Preencha o volume final desejado, o volume de soro disponível ou ambos para comparar.</p>
+          <p class="dica">Preencha o volume final desejado, o volume de diluente (soro) disponível ou ambos para comparar.</p>
           <div class="linha-ou">
             <div>
               <label for="volFinal">Volume final desejado</label>
@@ -165,7 +166,7 @@
             <div class="divisor-ou" aria-hidden="true"><span>OU</span></div>
 
             <div>
-              <label for="volSoro">Volume de soro disponível</label>
+              <label for="volSoro">Volume de diluente (soro)</label>
               <div class="campo">
                 <input type="number" id="volSoro" step="any" min="0" inputmode="decimal" autocomplete="off" placeholder="Ex: 15">
                 <span class="sufixo">mL</span>
@@ -291,11 +292,13 @@ function verificarLiberacaoCadastro() {
   }
 }
 
-const cadastroLiberado = verificarLiberacaoCadastro();
-if (cadastroLiberado) {
-  $("boxComprar").hidden = true;
-  $("formSignup").hidden = false;
+function atualizarPainelCadastro(liberado) {
+  $("boxComprar").hidden = liberado;
+  $("formSignup").hidden = !liberado;
 }
+
+let cadastroLiberado = verificarLiberacaoCadastro();
+atualizarPainelCadastro(cadastroLiberado);
 
 /* ---------- Autenticação Firebase ---------- */
 function mostrarErroAuth(msg, sucesso = false) {
@@ -359,6 +362,9 @@ onAuthStateChanged(auth, user => {
     $("telaApp").hidden = true;
     $("btnSair").hidden = true;
     $("telaAuth").hidden = false;
+    if (!cadastroLiberado) {
+      alternarAuth("login");
+    }
   }
 });
 
@@ -388,6 +394,8 @@ $("formSignup").addEventListener("submit", async e => {
   try {
     await createUserWithEmailAndPassword(auth, $("signupEmail").value.trim(), $("signupPassword").value);
     try { localStorage.removeItem(CHAVE_CADASTRO_LIBERADO); } catch (err) {}
+    cadastroLiberado = false;
+    atualizarPainelCadastro(false);
     $("formSignup").reset();
   } catch (err) {
     mostrarErroAuth(traduzirErroFirebase(err.code));
@@ -415,7 +423,11 @@ $("btnEsqueciSenha").addEventListener("click", async e => {
 
 $("btnSair").addEventListener("click", async () => {
   try {
+    try { localStorage.removeItem(CHAVE_CADASTRO_LIBERADO); } catch (err) {}
+    cadastroLiberado = false;
+    atualizarPainelCadastro(false);
     await signOut(auth);
+    alternarAuth("login");
     aviso("Você saiu da sua conta.");
   } catch (err) {
     aviso("Erro ao sair.");
@@ -502,47 +514,47 @@ function calcularPreparo() {
   if (isNaN(ci) || isNaN(cf)) return { tipo: "incompleto", msg: "Preencha as duas concentrações para iniciar." };
   if (ci <= 0 || cf <= 0) return { tipo: "erro", msg: "Informe as duas concentrações com valores maiores que zero." };
   if (cf > ci) return { tipo: "erro", msg: "A concentração final não pode ser maior que a inicial." };
-  if (isNaN(vf) && isNaN(vs)) return { tipo: "incompleto", msg: "Preencha o volume final desejado ou o volume de soro disponível." };
+  if (isNaN(vf) && isNaN(vs)) return { tipo: "incompleto", msg: "Preencha o volume final desejado ou o volume de diluente (soro) disponível." };
   if ((!isNaN(vf) && vf <= 0) || (!isNaN(vs) && vs <= 0)) return { tipo: "erro", msg: "Os volumes devem ser maiores que zero." };
-  if (!isNaN(vs) && cf === ci) return { tipo: "erro", msg: "Com a concentração final igual à inicial não há diluição. Use uma concentração final menor para calcular com o volume de soro." };
+  if (!isNaN(vs) && cf === ci) return { tipo: "erro", msg: "Com a concentração final igual à inicial não há diluição. Use uma concentração final menor para calcular com o volume de diluente." };
 
   const cenarios = [];
   if (!isNaN(vf)) {
-    const proc = (cf * vf) / ci;
-    cenarios.push({ titulo: `Para ${nl(vf)} mL a ${nl(cf)} %`, proc, soro: vf - proc, total: vf });
+    const solucao = (cf * vf) / ci;
+    cenarios.push({ titulo: `Para ${nl(vf)} mL a ${nl(cf)} %`, solucao, soro: vf - solucao, total: vf });
   }
   if (!isNaN(vs)) {
-    const proc = (cf * vs) / (ci - cf);
-    cenarios.push({ titulo: `Com ${nl(vs)} mL de soro disponível`, proc, soro: vs, total: proc + vs });
+    const solucao = (cf * vs) / (ci - cf);
+    cenarios.push({ titulo: `Com ${nl(vs)} mL de diluente disponível`, solucao, soro: vs, total: solucao + vs });
   }
   return { tipo: "ok", ci, cf, cenarios };
 }
 
 /* ---------- Guia Visual de Seringa (SVG) ---------- */
-function guiaSeringa(proc, soro, total) {
-  const pctProc = total > 0 ? Math.max(0, Math.min(100, (proc / total) * 100)) : 0;
-  const pctSoro = 100 - pctProc;
+function guiaSeringa(solucao, soro, total) {
+  const pctSol = total > 0 ? Math.max(0, Math.min(100, (solucao / total) * 100)) : 0;
+  const pctSoro = 100 - pctSol;
   const larguraCorpo = 200;
-  const wProc = (pctProc / 100) * larguraCorpo;
-  const wSoro = larguraCorpo - wProc;
-  const xSoro = 36 + wProc;
+  const wSol = (pctSol / 100) * larguraCorpo;
+  const wSoro = larguraCorpo - wSol;
+  const xSoro = 36 + wSol;
 
   const marcas = [0.25, 0.5, 0.75].map(f => {
     const x = 36 + larguraCorpo * f;
     return `<line x1="${x}" y1="26" x2="${x}" y2="33" stroke="currentColor" stroke-opacity="0.4" stroke-width="1.2"/>`;
   }).join("");
 
-  const mostrarMarcaIntermediaria = pctProc >= 10 && pctProc <= 90;
+  const mostrarMarcaIntermediaria = pctSol >= 10 && pctSol <= 90;
 
-  return `<div class="guia-seringa" role="img" aria-label="Guia visual na seringa: ${nl(pctProc)}% procaína (${n2(proc)} mL) e ${nl(pctSoro)}% soro (${n2(soro)} mL)">
+  return `<div class="guia-seringa" role="img" aria-label="Guia visual na seringa: ${nl(pctSol)}% solução inicial (${n2(solucao)} mL) e ${nl(pctSoro)}% diluente (${n2(soro)} mL)">
     <svg viewBox="0 0 296 72" width="100%" height="72" fill="none">
       ${mostrarMarcaIntermediaria ? `
-        <text x="${xSoro}" y="13" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--teal)" font-family="inherit">${n2(proc)} mL</text>
+        <text x="${xSoro}" y="13" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--teal)" font-family="inherit">${n2(solucao)} mL</text>
         <line x1="${xSoro}" y1="17" x2="${xSoro}" y2="25" stroke="var(--teal)" stroke-width="1.3" stroke-dasharray="2 2"/>
       ` : ""}
       <rect x="6" y="36" width="18" height="6" rx="1.5" fill="var(--borda-campo)"/>
       <rect x="24" y="31" width="12" height="16" rx="2" fill="var(--borda-campo)"/>
-      <rect x="36" y="26" width="${wProc}" height="26" fill="var(--teal)"/>
+      <rect x="36" y="26" width="${wSol}" height="26" fill="var(--teal)"/>
       <rect x="${xSoro}" y="26" width="${wSoro}" height="26" fill="var(--soro)"/>
       <rect x="36" y="26" width="${larguraCorpo}" height="26" rx="3" stroke="var(--borda-campo)" stroke-width="1.5"/>
       <rect x="236" y="21" width="4" height="36" rx="1.5" fill="var(--borda-campo)"/>
@@ -553,8 +565,8 @@ function guiaSeringa(proc, soro, total) {
       <text x="236" y="66" text-anchor="end" font-size="10" font-weight="600" fill="var(--tinta)" font-family="inherit">${n2(total)} mL</text>
     </svg>
     <div class="legenda-seringa">
-      <span><i class="dot-proc"></i> Procaína <strong>${nl(pctProc)}%</strong></span>
-      <span><i class="dot-soro"></i> Soro fisiológico <strong>${nl(pctSoro)}%</strong></span>
+      <span><i class="dot-proc"></i> Solução inicial <strong>${nl(pctSol)}%</strong></span>
+      <span><i class="dot-soro"></i> Diluente (soro) <strong>${nl(pctSoro)}%</strong></span>
     </div>
   </div>`;
 }
@@ -569,25 +581,25 @@ function cartaoPreparo(c) {
       <div class="card-dose v-proc">
         <dt>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-          Procaína
+          Solução inicial
         </dt>
-        <dd>${n2(c.proc)}<small>mL</small></dd>
+        <dd>${n2(c.solucao)}<small>mL</small></dd>
       </div>
       <div class="card-dose v-soro">
         <dt>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
-          Soro fisiológico
+          Diluente (soro)
         </dt>
         <dd>${n2(c.soro)}<small>mL</small></dd>
       </div>
     </dl>
-    ${guiaSeringa(c.proc, c.soro, c.total)}
+    ${guiaSeringa(c.solucao, c.soro, c.total)}
   </section>`;
 }
 
 function textoPreparo(r) {
-  return `Procaína ${nl(r.ci)} % → ${nl(r.cf)} %\n\n` + r.cenarios.map(c =>
-    `${c.titulo}:\nProcaína: ${n2(c.proc)} mL\nSoro: ${n2(c.soro)} mL\nVolume final: ${n2(c.total)} mL`
+  return `Diluição ${nl(r.ci)} % → ${nl(r.cf)} %\n\n` + r.cenarios.map(c =>
+    `${c.titulo}:\nSolução inicial: ${n2(c.solucao)} mL\nDiluente (soro): ${n2(c.soro)} mL\nVolume final: ${n2(c.total)} mL`
   ).join("\n\n");
 }
 
