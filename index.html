@@ -46,7 +46,7 @@
         <span id="temaIcone" aria-hidden="true"></span>
         <span id="temaTexto">Modo escuro</span>
       </button>
-      <a href="#" data-ms-action="logout" data-ms-redirect="/diluicao_calculadora/" data-ms-content="members" class="tema btn-sair">
+      <a href="#" id="btnSair" data-ms-content="members" class="tema btn-sair">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span>Sair</span>
       </a>
@@ -55,11 +55,11 @@
 </header>
 
 <main class="pagina">
-  <!-- Conteúdo bloqueado (apenas para visitantes não autenticados) -->
+  <!-- 1. Visitante não autenticado: Login ou Cadastro com Checkout -->
   <section data-ms-content="!members" class="auth-wrap">
     <div class="titulo auth-titulo">
       <h1>Calculadora de diluição de procaína</h1>
-      <p>Entre na sua conta ou cadastre-se gratuitamente para acessar a calculadora e salvar seus cálculos.</p>
+      <p>Entre na sua conta ou adquira o acesso vitalício para usar a calculadora e salvar seus cálculos.</p>
     </div>
 
     <div class="painel auth-card">
@@ -86,9 +86,9 @@
         </form>
       </div>
 
-      <!-- Formulário de Cadastro -->
+      <!-- Formulário de Cadastro (já abre o checkout do Plano Vitalício) -->
       <div id="painelSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
-        <form data-ms-form="signup" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
+        <form data-ms-form="signup" data-ms-price:add="prc_plano-vital-cio-calculadora-dilui-o-5uq20qoz" data-ms-redirect="/diluicao_calculadora/" class="auth-form">
           <div class="auth-campo">
             <label for="signupEmail">E-mail</label>
             <input type="email" id="signupEmail" name="email" data-ms-member="email" placeholder="seu@email.com" autocomplete="email" required>
@@ -97,7 +97,7 @@
             <label for="signupPassword">Senha</label>
             <input type="password" id="signupPassword" name="password" data-ms-member="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
           </div>
-          <button type="submit" class="primario auth-submit">Criar conta</button>
+          <button type="submit" class="primario auth-submit">Continuar para pagamento</button>
         </form>
       </div>
 
@@ -105,8 +105,27 @@
     </div>
   </section>
 
-  <!-- Conteúdo exclusivo para membros autenticados -->
-  <div data-ms-content="members">
+  <!-- 2. Usuário logado, mas sem plano pago ativo (exibe botão de checkout) -->
+  <!-- Se quiser restringir a um Plan ID específico, troque "!paid-plans" por "!pln_SEU_ID" -->
+  <section data-ms-content="members" class="auth-wrap" id="secaoCheckout">
+    <div data-ms-content="!paid-plans">
+      <div class="titulo auth-titulo">
+        <h1>Finalize seu acesso</h1>
+        <p>Sua conta já está criada. Conclua a aquisição do Plano Vitalício para liberar a calculadora.</p>
+      </div>
+      <div class="painel auth-card" style="text-align: center;">
+        <h2 style="margin: 0 0 8px;">Plano Vitalício Calculadora Diluição</h2>
+        <p class="dica" style="margin: 0 0 20px;">Pagamento único com acesso ilimitado e histórico salvo no dispositivo.</p>
+        <button type="button" data-ms-price:add="prc_plano-vital-cio-calculadora-dilui-o-5uq20qoz" class="primario auth-submit">
+          Adquirir acesso vitalício
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Conteúdo exclusivo para membros com plano pago ativo -->
+  <!-- Se quiser restringir a um Plan ID específico, troque "paid-plans" por "pln_SEU_ID" -->
+  <div data-ms-content="paid-plans">
     <div class="titulo">
       <h1>Calculadora de diluição de procaína</h1>
       <p>Informe as concentrações e o volume para saber quanto de procaína e de soro usar no preparo. O resultado é atualizado em tempo real.</p>
@@ -235,7 +254,7 @@ let confirmaApagar = false;
 let timerApagar;
 let eventoInstalacao = null;
 
-/* ---------- Abas de Login / Cadastro e Diagnóstico Memberstack ---------- */
+/* ---------- Abas de Login / Cadastro, Logout e Diagnóstico Memberstack ---------- */
 function alternarAuth(tipo) {
   const isLogin = tipo === "login";
   $("tabLogin").setAttribute("aria-selected", isLogin);
@@ -251,6 +270,16 @@ function alternarAuth(tipo) {
 }
 $("tabLogin").addEventListener("click", () => alternarAuth("login"));
 $("tabSignup").addEventListener("click", () => alternarAuth("signup"));
+
+$("btnSair").addEventListener("click", async e => {
+  e.preventDefault();
+  if (window.$memberstackDom) {
+    try {
+      await window.$memberstackDom.logout();
+    } catch (err) {}
+  }
+  window.location.replace("https://gabi-barduco.github.io/diluicao_calculadora/");
+});
 
 document.querySelectorAll(".auth-form").forEach(f => {
   f.addEventListener("submit", e => {
