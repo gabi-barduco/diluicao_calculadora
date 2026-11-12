@@ -1,10 +1,9 @@
-const CACHE_NAME = "procaina-pwa-v2";
+const CACHE_NAME = "procaina-pwa-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./manifest.json",
-  "./icon.svg"
+  "./manifest.json"
 ];
 
 self.addEventListener("install", event => {
@@ -31,17 +30,14 @@ self.addEventListener("fetch", event => {
   if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
