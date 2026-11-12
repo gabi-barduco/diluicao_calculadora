@@ -1,9 +1,10 @@
-const CACHE_NAME = "procaina-pwa-v4";
+const CACHE_NAME = "procaina-pwa-v6";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon.svg"
 ];
 
 self.addEventListener("install", event => {
