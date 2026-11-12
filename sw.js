@@ -1,4 +1,4 @@
-const CACHE_NAME = "procaina-pwa-v6";
+const CACHE_NAME = "diluicao-pwa-v7";
 const ASSETS = [
   "./",
   "./index.html",
